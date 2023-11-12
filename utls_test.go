@@ -18,11 +18,18 @@ type toyStruct struct {
 	slcPtr *[]bool
 }
 
-func sliceExample() []bool {
+func mockSliceExample() []bool {
 	return []bool{true, false, true}
 }
 
-func structExample() toyStruct {
+func mockMapExample() map[string]bool {
+	return map[string]bool{
+		"test":  true,
+		"test2": false,
+	}
+}
+
+func mockStructExample() toyStruct {
 	return toyStruct{
 		i:      5,
 		iPtr:   ToPtr(5),
@@ -41,8 +48,9 @@ func TestToPtr(t *testing.T) {
 	intExample := 5
 	strExample := "test"
 	boolExample := true
-	sliceExample := sliceExample()
-	structExample := structExample()
+	sliceExample := mockSliceExample()
+	structExample := mockStructExample()
+	mapExample := mockMapExample()
 
 	testCases := []struct {
 		name string
@@ -79,6 +87,14 @@ func TestToPtr(t *testing.T) {
 		{
 			name: "slice pointer",
 			item: &sliceExample,
+		},
+		{
+			name: "map",
+			item: mapExample,
+		},
+		{
+			name: "map pointer",
+			item: &mapExample,
 		},
 		{
 			name: "struct",
@@ -129,6 +145,14 @@ func TestToPtr(t *testing.T) {
 				slicePtrItem := tc.item.(*[]bool)
 				slicePtrPtr := ToPtr(slicePtrItem)
 				require.Equal(t, slicePtrItem, *slicePtrPtr)
+			case map[string]bool:
+				mapItem := tc.item.(map[string]bool)
+				mapPtr := ToPtr(mapItem)
+				require.Equal(t, mapItem, *mapPtr)
+			case *map[string]bool:
+				mapPtrItem := tc.item.(*map[string]bool)
+				mapPtrPtr := ToPtr(mapPtrItem)
+				require.Equal(t, mapPtrItem, *mapPtrPtr)
 			case toyStruct:
 				structItem := tc.item.(toyStruct)
 				structPtr := ToPtr(structItem)
@@ -137,6 +161,176 @@ func TestToPtr(t *testing.T) {
 				structPtrItem := tc.item.(*toyStruct)
 				structPtrPtr := ToPtr(structPtrItem)
 				require.Equal(t, structPtrItem, *structPtrPtr)
+			default:
+				t.Errorf("unexpected type: %T", tc.item)
+			}
+		})
+	}
+}
+
+func TestSliceContains(t *testing.T) {
+	intExample := 5
+	intExample2 := 2
+	strExample := "test"
+	strExample2 := "test2"
+	boolExample := true
+	boolExample2 := false
+
+	testCases := []struct {
+		name string
+		s    []any
+		item any
+		ok   bool
+	}{
+		{
+			name: "integer",
+			s: []any{
+				intExample,
+			},
+			item: intExample,
+			ok:   true,
+		},
+		{
+			name: "integer pointer",
+			s: []any{
+				&intExample,
+			},
+			item: &intExample,
+			ok:   true,
+		},
+		{
+			name: "string",
+			s: []any{
+				strExample,
+			},
+			item: strExample,
+			ok:   true,
+		},
+		{
+			name: "string pointer",
+			s: []any{
+				&strExample,
+			},
+			item: &strExample,
+			ok:   true,
+		},
+		{
+			name: "boolean",
+			s: []any{
+				boolExample,
+			},
+			item: boolExample,
+			ok:   true,
+		},
+		{
+			name: "boolean pointer",
+			s: []any{
+				&boolExample,
+			},
+			item: &boolExample,
+			ok:   true,
+		},
+		{
+			name: "integer not in slice",
+			s: []any{
+				intExample,
+			},
+			item: intExample2,
+			ok:   false,
+		},
+		{
+			name: "integer pointer not in slice",
+			s: []any{
+				&intExample,
+			},
+			item: &intExample2,
+			ok:   false,
+		},
+		{
+			name: "string not in slice",
+			s: []any{
+				strExample,
+			},
+			item: strExample2,
+			ok:   false,
+		},
+		{
+			name: "string pointer not in slice",
+			s: []any{
+				&strExample,
+			},
+			item: &strExample2,
+			ok:   false,
+		},
+		{
+			name: "boolean not in slice",
+			s: []any{
+				boolExample,
+			},
+			item: boolExample2,
+			ok:   false,
+		},
+		{
+			name: "boolean pointer not in slice",
+			s: []any{
+				&boolExample,
+			},
+			item: &boolExample2,
+			ok:   false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			switch tc.item.(type) {
+			case int:
+				intItem := tc.item.(int)
+				var intSlice []int
+				for _, v := range tc.s {
+					intSlice = append(intSlice, v.(int))
+				}
+				intOk := SliceContains(intSlice, intItem)
+				require.Equal(t, tc.ok, intOk)
+			case *int:
+				intPtrItem := tc.item.(*int)
+				var intPtrSlice []*int
+				for _, v := range tc.s {
+					intPtrSlice = append(intPtrSlice, v.(*int))
+				}
+				intPtrOk := SliceContains(intPtrSlice, intPtrItem)
+				require.Equal(t, tc.ok, intPtrOk)
+			case string:
+				stringItem := tc.item.(string)
+				var stringSlice []string
+				for _, v := range tc.s {
+					stringSlice = append(stringSlice, v.(string))
+				}
+				stringOk := SliceContains(stringSlice, stringItem)
+				require.Equal(t, tc.ok, stringOk)
+			case *string:
+				stringPtrItem := tc.item.(*string)
+				var stringPtrSlice []*string
+				for _, v := range tc.s {
+					stringPtrSlice = append(stringPtrSlice, v.(*string))
+				}
+				stringPtrOk := SliceContains(stringPtrSlice, stringPtrItem)
+				require.Equal(t, tc.ok, stringPtrOk)
+			case bool:
+				boolItem := tc.item.(bool)
+				var boolSlice []bool
+				for _, v := range tc.s {
+					boolSlice = append(boolSlice, v.(bool))
+				}
+				boolOk := SliceContains(boolSlice, boolItem)
+				require.Equal(t, tc.ok, boolOk)
+			case *bool:
+				boolPtrItem := tc.item.(*bool)
+				var boolPtrSlice []*bool
+				for _, v := range tc.s {
+					boolPtrSlice = append(boolPtrSlice, v.(*bool))
+				}
+				boolPtrOk := SliceContains(boolPtrSlice, boolPtrItem)
+				require.Equal(t, tc.ok, boolPtrOk)
 			default:
 				t.Errorf("unexpected type: %T", tc.item)
 			}
