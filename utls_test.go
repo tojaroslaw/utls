@@ -2,6 +2,7 @@ package utls
 
 import (
 	"github.com/stretchr/testify/require"
+	"reflect"
 	"testing"
 )
 
@@ -163,6 +164,156 @@ func TestToPtr(t *testing.T) {
 				require.Equal(t, structPtrItem, *structPtrPtr)
 			default:
 				t.Errorf("unexpected type: %T", tc.item)
+			}
+		})
+	}
+}
+
+func TestToVal(t *testing.T) {
+	intExample := 5
+	strExample := "test"
+	boolExample := true
+	sliceExample := mockSliceExample()
+	mapExample := mockMapExample()
+	structExample := mockStructExample()
+	intPtrExample := &intExample
+
+	var intPtrPtrNilExample **int
+	var intPtrNil *int
+
+	testCases := []struct {
+		name        string
+		ptr         any
+		expectedVal any
+		ok          bool
+	}{
+		{
+			name:        "integer pointer",
+			ptr:         &intExample,
+			expectedVal: intExample,
+			ok:          true,
+		},
+		{
+			name:        "string pointer",
+			ptr:         &strExample,
+			expectedVal: strExample,
+			ok:          true,
+		},
+		{
+			name:        "boolean pointer",
+			ptr:         &boolExample,
+			expectedVal: boolExample,
+			ok:          true,
+		},
+		{
+			name:        "slice pointer",
+			ptr:         &sliceExample,
+			expectedVal: sliceExample,
+			ok:          true,
+		},
+		{
+			name:        "map pointer",
+			ptr:         &mapExample,
+			expectedVal: mapExample,
+			ok:          true,
+		},
+		{
+			name:        "struct pointer",
+			ptr:         &structExample,
+			expectedVal: structExample,
+			ok:          true,
+		},
+		{
+			name:        "integer pointer pointer",
+			ptr:         &intPtrExample,
+			expectedVal: intPtrExample,
+			ok:          true,
+		},
+		{
+			name:        "integer pointer nil",
+			ptr:         (*int)(nil),
+			expectedVal: 0,
+			ok:          false,
+		},
+		{
+			name:        "string pointer nil",
+			ptr:         (*string)(nil),
+			expectedVal: "",
+			ok:          false,
+		},
+		{
+			name:        "boolean pointer nil",
+			ptr:         (*bool)(nil),
+			expectedVal: false,
+			ok:          false,
+		},
+		{
+			name:        "slice pointer nil",
+			ptr:         (*[]bool)(nil),
+			expectedVal: []bool(nil),
+			ok:          false,
+		},
+		{
+			name:        "map pointer nil",
+			ptr:         (*map[string]bool)(nil),
+			expectedVal: map[string]bool(nil),
+			ok:          false,
+		},
+		{
+			name:        "struct pointer nil",
+			ptr:         (*toyStruct)(nil),
+			expectedVal: toyStruct{},
+			ok:          false,
+		},
+		{
+			name:        "integer pointer pointer nil",
+			ptr:         intPtrPtrNilExample,
+			expectedVal: intPtrNil,
+			ok:          false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			switch tc.ptr.(type) {
+			case *int:
+				intPtr := tc.ptr.(*int)
+				intVal, intOk := ToVal(intPtr)
+				require.Equal(t, tc.ok, intOk)
+				require.Equal(t, tc.expectedVal, intVal)
+			case *string:
+				strPtr := tc.ptr.(*string)
+				strVal, strOk := ToVal(strPtr)
+				require.Equal(t, tc.ok, strOk)
+				require.Equal(t, tc.expectedVal, strVal)
+			case *bool:
+				boolPtr := tc.ptr.(*bool)
+				boolVal, boolOk := ToVal(boolPtr)
+				require.Equal(t, tc.ok, boolOk)
+				require.Equal(t, tc.expectedVal, boolVal)
+			case *[]bool:
+				slicePtr := tc.ptr.(*[]bool)
+				sliceVal, sliceOk := ToVal(slicePtr)
+				require.Equal(t, tc.ok, sliceOk)
+				require.Equal(t, tc.expectedVal, sliceVal)
+			case *map[string]bool:
+				mapPtr := tc.ptr.(*map[string]bool)
+				mapVal, mapOk := ToVal(mapPtr)
+				require.Equal(t, tc.ok, mapOk)
+				require.Equal(t, tc.expectedVal, mapVal)
+			case *toyStruct:
+				structPtr := tc.ptr.(*toyStruct)
+				structVal, structOk := ToVal(structPtr)
+				require.Equal(t, tc.ok, structOk)
+				require.Equal(t, tc.expectedVal, structVal)
+			case **int:
+				intPtrPtr := tc.ptr.(**int)
+				intVal, intOk := ToVal(intPtrPtr)
+				require.Equal(t, tc.ok, intOk)
+				require.True(t, reflect.DeepEqual(tc.expectedVal.(*int), intVal))
+				require.Equal(t, tc.expectedVal.(*int), intVal)
+			default:
+				t.Errorf("unexpected type: %T", tc.ptr)
 			}
 		})
 	}

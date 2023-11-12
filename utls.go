@@ -5,18 +5,27 @@ import (
 	"slices"
 )
 
-// ToPtr takes any x and returns a pointer to that item
+// ToPtr takes any x and returns a pointer to that ptr
 func ToPtr[T any](x T) *T {
 	return &x
 }
 
-// SliceContains takes in a slice and an item to check for in the slice. If the item is in the slice, it returns true,
+// ToVal takes any ptr and returns the value of that pointer if it exists and sets ok to true. If the pointer is nil,
+// it returns the zero value of the type and sets ok to false.
+func ToVal[T any](ptr *T) (val T, ok bool) {
+	if ptr == nil {
+		return val, false
+	}
+	return *ptr, true
+}
+
+// SliceContains takes in a slice and an ptr to check for in the slice. If the ptr is in the slice, it returns true,
 // otherwise it returns false.
 func SliceContains[S ~[]T, T comparable](slice S, item T) bool {
 	return slices.Contains(slice, item)
 }
 
-// MapContains takes in a map and an item to check for as a key in that map. If the item is a key in the map, it returns
+// MapContains takes in a map and an ptr to check for as a key in that map. If the ptr is a key in the map, it returns
 // true; otherwise it returns false.
 func MapContains[T comparable, U any](m map[T]U, item T) bool {
 	_, ok := m[item]
