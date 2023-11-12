@@ -313,3 +313,133 @@ func TestMapContains(t *testing.T) {
 		})
 	}
 }
+
+func TestMin(t *testing.T) {
+	testCases := []struct {
+		name string
+		a    any
+		b    any
+		min  any
+	}{
+		{
+			name: "integer a > b",
+			a:    5,
+			b:    2,
+			min:  2,
+		},
+		{
+			name: "integer a < b",
+			a:    2,
+			b:    5,
+			min:  2,
+		},
+		{
+			name: "integer a == b",
+			a:    5,
+			b:    5,
+			min:  5,
+		},
+		{
+			name: "float a > b",
+			a:    5.0,
+			b:    2.0,
+			min:  2.0,
+		},
+		{
+			name: "float a < b",
+			a:    2.0,
+			b:    5.0,
+			min:  2.0,
+		},
+		{
+			name: "float a == b",
+			a:    5.0,
+			b:    5.0,
+			min:  5.0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			switch tc.a.(type) {
+			case int:
+				intA := tc.a.(int)
+				intB := tc.b.(int)
+				intMin := Min(intA, intB)
+				require.Equal(t, tc.min, intMin)
+			case float64:
+				floatA := tc.a.(float64)
+				floatB := tc.b.(float64)
+				floatMin := Min(floatA, floatB)
+				require.Equal(t, tc.min, floatMin)
+			default:
+				t.Errorf("unexpected type: %T", tc.a)
+			}
+		})
+	}
+}
+
+func TestMax(t *testing.T) {
+	testCases := []struct {
+		name string
+		a    any
+		b    any
+		max  any
+	}{
+		{
+			name: "integer a > b",
+			a:    5,
+			b:    2,
+			max:  5,
+		},
+		{
+			name: "integer a < b",
+			a:    2,
+			b:    5,
+			max:  5,
+		},
+		{
+			name: "integer a == b",
+			a:    5,
+			b:    5,
+			max:  5,
+		},
+		{
+			name: "float a > b",
+			a:    5.0,
+			b:    2.0,
+			max:  5.0,
+		},
+		{
+			name: "float a < b",
+			a:    2.0,
+			b:    5.0,
+			max:  5.0,
+		},
+		{
+			name: "float a == b",
+			a:    5.0,
+			b:    5.0,
+			max:  5.0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			switch tc.a.(type) {
+			case int:
+				intA := tc.a.(int)
+				intB := tc.b.(int)
+				intMax := Max(intA, intB)
+				require.Equal(t, tc.max, intMax)
+			case float64:
+				floatA := tc.a.(float64)
+				floatB := tc.b.(float64)
+				floatMax := Max(floatA, floatB)
+				require.Equal(t, tc.max, floatMax)
+			default:
+				t.Errorf("unexpected type: %T", tc.a)
+			}
+		})
+	}
+}
