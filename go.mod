@@ -1,4 +1,4 @@
-module gitlab.com/ArthurAI/arthur-go-libs/utils
+module github.com/tojaroslaw/utls
 
 go 1.18
 
