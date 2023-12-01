@@ -19,20 +19,30 @@ func ToVal[T any](ptr *T) (val T, ok bool) {
 	return *ptr, true
 }
 
-// SliceContains takes in a slice and an ptr to check for in the slice. If the ptr is in the slice, it returns true,
+// SliceContains takes in a slice and an item to check for in the slice. If the item is in the slice, it returns true,
 // otherwise it returns false.
 func SliceContains[S ~[]T, T comparable](slice S, item T) bool {
 	return slices.Contains(slice, item)
 }
 
-// MapContains takes in a map and an ptr to check for as a key in that map. If the ptr is a key in the map, it returns
+// MapContains takes in a map and an item to check for as a key in that map. If the item is a key in the map, it returns
 // true; otherwise it returns false.
 func MapContains[T comparable, U any](m map[T]U, item T) bool {
 	_, ok := m[item]
 	return ok
 }
 
-// Min returns the minimum of two values
+// SliceToMap takes in a slice and returns a map with the slice values as keys and each corresponding value set to true.
+// If the slice contains duplicate values, the map will only contain one each duplicated value.
+func SliceToMap[S ~[]T, T comparable](slice S) map[T]bool {
+	m := make(map[T]bool)
+	for _, item := range slice {
+		m[item] = true
+	}
+	return m
+}
+
+// Min returns the minimum of two values.
 func Min[T constraints.Ordered](a, b T) T {
 	if a < b {
 		return a
@@ -40,7 +50,7 @@ func Min[T constraints.Ordered](a, b T) T {
 	return b
 }
 
-// Max returns the maximum of two values
+// Max returns the maximum of two values.
 func Max[T constraints.Ordered](a, b T) T {
 	if a > b {
 		return a

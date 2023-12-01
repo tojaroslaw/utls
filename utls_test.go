@@ -659,6 +659,221 @@ func TestMapContains(t *testing.T) {
 	}
 }
 
+func TestSliceToMap(t *testing.T) {
+	intExample := 5
+	intExample2 := 2
+	strExample := "test"
+	strExample2 := "test2"
+	boolExample := true
+	boolExample2 := false
+
+	testCases := []struct {
+		name string
+		s    []any
+		m    map[any]bool
+	}{
+		{
+			name: "integer",
+			s: []any{
+				intExample,
+				intExample2,
+			},
+			m: map[any]bool{
+				intExample:  true,
+				intExample2: true,
+			},
+		},
+		{
+			name: "integer pointer",
+			s: []any{
+				&intExample,
+				&intExample2,
+			},
+			m: map[any]bool{
+				&intExample:  true,
+				&intExample2: true,
+			},
+		},
+		{
+			name: "string",
+			s: []any{
+				strExample,
+				strExample2,
+			},
+			m: map[any]bool{
+				strExample:  true,
+				strExample2: true,
+			},
+		},
+		{
+			name: "string pointer",
+			s: []any{
+				&strExample,
+				&strExample2,
+			},
+			m: map[any]bool{
+				&strExample:  true,
+				&strExample2: true,
+			},
+		},
+		{
+			name: "boolean",
+			s: []any{
+				boolExample,
+				boolExample2,
+			},
+			m: map[any]bool{
+				boolExample:  true,
+				boolExample2: true,
+			},
+		},
+		{
+			name: "boolean pointer",
+			s: []any{
+				&boolExample,
+				&boolExample2,
+			},
+			m: map[any]bool{
+				&boolExample:  true,
+				&boolExample2: true,
+			},
+		},
+		{
+			name: "case with multiple slice values that are the same",
+			s: []any{
+				"value1",
+				"value2",
+				"value3",
+				"value2",
+				"value3",
+				"value3",
+			},
+			m: map[any]bool{
+				"value1": true,
+				"value2": true,
+				"value3": true,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			switch tc.s[0].(type) {
+			case int:
+				var intSlice []int
+				for _, v := range tc.s {
+					intSlice = append(intSlice, v.(int))
+				}
+				intMap := make(map[int]bool)
+				for k, v := range tc.m {
+					intMap[k.(int)] = v
+				}
+				m := SliceToMap(intSlice)
+				for k, _ := range m {
+					require.Equal(t, intMap[k], m[k])
+					require.Equal(t, intMap[k], true)
+					require.True(t, SliceContains(intSlice, k))
+				}
+				for _, v := range intSlice {
+					require.Equal(t, m[v], true)
+				}
+			case *int:
+				var intPtrSlice []*int
+				for _, v := range tc.s {
+					intPtrSlice = append(intPtrSlice, v.(*int))
+				}
+				intPtrMap := make(map[*int]bool)
+				for k, v := range tc.m {
+					intPtrMap[k.(*int)] = v
+				}
+				m := SliceToMap(intPtrSlice)
+				for k, _ := range m {
+					require.Equal(t, intPtrMap[k], m[k])
+					require.Equal(t, intPtrMap[k], true)
+					require.True(t, SliceContains(intPtrSlice, k))
+				}
+				for _, v := range intPtrSlice {
+					require.Equal(t, m[v], true)
+				}
+			case string:
+				var stringSlice []string
+				for _, v := range tc.s {
+					stringSlice = append(stringSlice, v.(string))
+				}
+				stringMap := make(map[string]bool)
+				for k, v := range tc.m {
+					stringMap[k.(string)] = v
+				}
+				m := SliceToMap(stringSlice)
+				for k, _ := range m {
+					require.Equal(t, stringMap[k], m[k])
+					require.Equal(t, stringMap[k], true)
+					require.True(t, SliceContains(stringSlice, k))
+				}
+				for _, v := range stringSlice {
+					require.Equal(t, m[v], true)
+				}
+			case *string:
+				var stringPtrSlice []*string
+				for _, v := range tc.s {
+					stringPtrSlice = append(stringPtrSlice, v.(*string))
+				}
+				stringPtrMap := make(map[*string]bool)
+				for k, v := range tc.m {
+					stringPtrMap[k.(*string)] = v
+				}
+				m := SliceToMap(stringPtrSlice)
+				for k, _ := range m {
+					require.Equal(t, stringPtrMap[k], m[k])
+					require.Equal(t, stringPtrMap[k], true)
+					require.True(t, SliceContains(stringPtrSlice, k))
+				}
+				for _, v := range stringPtrSlice {
+					require.Equal(t, m[v], true)
+				}
+			case bool:
+				var boolSlice []bool
+				for _, v := range tc.s {
+					boolSlice = append(boolSlice, v.(bool))
+				}
+				boolMap := make(map[bool]bool)
+				for k, v := range tc.m {
+					boolMap[k.(bool)] = v
+				}
+				m := SliceToMap(boolSlice)
+				for k, _ := range m {
+					require.Equal(t, boolMap[k], m[k])
+					require.Equal(t, boolMap[k], true)
+					require.True(t, SliceContains(boolSlice, k))
+				}
+				for _, v := range boolSlice {
+					require.Equal(t, m[v], true)
+				}
+			case *bool:
+				var boolPtrSlice []*bool
+				for _, v := range tc.s {
+					boolPtrSlice = append(boolPtrSlice, v.(*bool))
+				}
+				boolPtrMap := make(map[*bool]bool)
+				for k, v := range tc.m {
+					boolPtrMap[k.(*bool)] = v
+				}
+				m := SliceToMap(boolPtrSlice)
+				for k, _ := range m {
+					require.Equal(t, boolPtrMap[k], m[k])
+					require.Equal(t, boolPtrMap[k], true)
+					require.True(t, SliceContains(boolPtrSlice, k))
+				}
+				for _, v := range boolPtrSlice {
+					require.Equal(t, m[v], true)
+				}
+			default:
+				t.Errorf("unexpected type: %T", tc.s[0])
+			}
+		})
+	}
+}
+
 func TestMin(t *testing.T) {
 	testCases := []struct {
 		name string
